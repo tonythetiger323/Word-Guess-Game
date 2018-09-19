@@ -41,6 +41,7 @@ var numberRemainingP = document.getElementById("numberRemaining");
 var lettersGuessedP = document.getElementById("lettersGuessed");
 var winsP = document.getElementById("wins");
 numberRemainingP.textContent = guessesRemaining;
+winsP.textContent = wins;
 
 //
 // -- Game "Simulation" --
@@ -48,52 +49,47 @@ numberRemainingP.textContent = guessesRemaining;
 // Have computer select a word to be guessed and display empty lines
 chosenWord = selectRandomWord();
 log('Chosen Word', chosenWord);
-
 var wordCountDown = chosenWord.length;
-console.log(wordCountDown);
-
+log('Word Count Down', wordCountDown);
 for (var i = 0; i < chosenWord.length; i++) {
     var j = chosenWord[i];
     if (j === " ") {
         blankSpace += " ";
         wordCountDown--;
-        console.log(wordCountDown);
+        log('Word Count Down', wordCountDown);
     } else {
         blankSpace += "_";
     }
 }
-
 currentWordP.textContent = blankSpace;
 log('Intial Blank Space', blankSpace)
-
-
 
 // Code to handle processing user's guess
 document.onkeyup = function (event) {
     var userGuess = event.key.toUpperCase();
     log('User Guess', userGuess);
     lettersGuessed.push(userGuess);
-    console.log(lettersGuessed);
+    log('Letters Guessed', lettersGuessed);
+    lettersGuessedP.textContent = lettersGuessed;
     guessesRemaining--;
     numberRemainingP.textContent = guessesRemaining;
-    lettersGuessedP.textContent = lettersGuessed;
-    
-    for(var i = 0; i < chosenWord.length; i++) {
-        if(chosenWord[i] === userGuess) {
+
+    for (var i = 0; i < chosenWord.length; i++) {
+        if (userGuess === chosenWord[i]) {
             blankSpace = blankSpace.substring(0, i) +  userGuess + blankSpace.substring(i + 1);
             log('Blank Space', blankSpace);
             currentWordP.textContent = blankSpace;
-            log("Blank space", blankSpace)
-            wordCountDown --;
-            console.log(wordCountDown);
-        }
-        if(wordCountDown===0){
-            wins++;
-            console.log(wins);
-            winsP.textContent=wins;
+            wordCountDown--;
+            log('Word Countdown', wordCountDown);
         }
 
+        if (wordCountDown === 0){
+            wins++;
+            log('Wins', wins);
+            winsP.textContent = wins;
+        }
     }
+    
 }
 //Check user's guess against current word
 
