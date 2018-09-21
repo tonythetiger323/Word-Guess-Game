@@ -1,106 +1,152 @@
 // Define any possible variables
+var chosenWord = "";
 var guessesRemaining = 13;
 var userGuess = "";
-var chosenWord = "";
 var blankSpace = "";
 var lettersGuessed = [];
 var wins = 0;
-
-// Press any key to get started
-
-//Make a list of possible words
-var phrases = [
-    "VANJIE",
-    "READING",
-    "RUNWAY",
-    "DRAG RACE",
-    "LOVE",
-    "RUPAUL",
-    "LIP SYNC",
-    "PIT CREW",
-    "SNATCH GAME",
-    "MICHELLE VISAGE",
-    "SASHAY",
-    "SHANTAY"
-]
-
-//
-// -- Functions --
-function selectRandomWord() {
-    return phrases[Math.floor(Math.random() * phrases.length)];
+var wordCountDown;
+function getElement(element) {
+  var selectedElement = document.getElementById(element);
+  return selectedElement;
 }
-
-function log(title, message) {
-    console.log(title, message);
-}
-
 //
 // -- HTML DOM Elements --
-var currentWordP = document.getElementById("currentWord");
-var numberRemainingP = document.getElementById("numberRemaining");
-var lettersGuessedP = document.getElementById("lettersGuessed");
-var winsP = document.getElementById("wins");
-numberRemainingP.textContent = guessesRemaining;
-winsP.textContent = wins;
+var currentWordP = getElement("currentWord");
+var numberRemainingP = getElement("numberRemaining");
+var lettersGuessedP = getElement("lettersGuessed");
+var winsP = getElement("wins");
 
-//
-// -- Game "Simulation" --
-
-// Have computer select a word to be guessed and display empty lines
-chosenWord = selectRandomWord();
-log('Chosen Word', chosenWord);
-var wordCountDown = chosenWord.length;
-log('Word Count Down', wordCountDown);
-for (var i = 0; i < chosenWord.length; i++) {
-    var j = chosenWord[i];
+function displayChosenWord(word) {
+  var result = "";
+  for (var i = 0; i < word.length; i++) {
+    var j = word[i];
     if (j === " ") {
-        blankSpace += " ";
-        wordCountDown--;
-        log('Word Count Down', wordCountDown);
+      result += " ";
     } else {
-        blankSpace += "_";
+      result += "_";
     }
+  }
+  return result;
 }
-currentWordP.textContent = blankSpace;
-log('Intial Blank Space', blankSpace)
+
+function isWordComplete(word) {
+  if (!word.includes("_")) {
+    return true;
+  }
+  return false;
+}
+
+function isValidCharacter(keyEvent, letters) {
+  // is one character length
+  if (keyEvent && keyEvent.length === 1) {
+    // A - Z character
+    if (keyEvent >= "A" && keyEvent <= "Z") {
+      // its not in the letters []
+      if (!letters.includes(keyEvent)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function newGame(word) {
+  chosenWord = word;
+  guessesRemaining = 13;
+  userGuess = "";
+  blankSpace = "";
+  lettersGuessed = [];
+  console.log("New Game", {
+    chosenWord,
+    guessesRemaining,
+    userGuess,
+    blankSpace,
+    lettersGuessed
+  });
+
+  numberRemainingP.textContent = guessesRemaining;
+  winsP.textContent = wins;
+
+  //
+  // -- Game "Simulation" --
+
+  // Have computer select a word to be guessed and display empty lines
+
+  log("Chosen Word", chosenWord);
+
+  wordCountDown = chosenWord.length;
+  log("Word Count Down", wordCountDown);
+
+  // Compute the new ___ ___ and display in browser
+  blankSpace = displayChosenWord(chosenWord);
+  updateTextContent(currentWordP, blankSpace);
+
+  log("Intial Blank Space", blankSpace);
+}
 
 // Code to handle processing user's guess
-document.onkeyup = function (event) {
-    var userGuess = event.key.toUpperCase();
-    log('User Guess', userGuess);
+newGame(selectRandomWord());
+document.onkeyup = function(event) {
+  // get the letter from the event
+  var userGuess = event.key.toUpperCase();
+
+  // if letter has not been guessed
+  if (
+    isValidCharacter(userGuess, lettersGuessed)
+    // userGuess >= "A" &&
+    // userGuess <= "Z" &&
+    // !lettersGuessed.includes(userGuess)
+  ) {
+    // the letter is not included in the lettersGuessed array
+    // decrement guessing count
+
+    // add to the letters guessed
     lettersGuessed.push(userGuess);
-    log('Letters Guessed', lettersGuessed);
-    lettersGuessedP.textContent = lettersGuessed;
-    guessesRemaining--;
-    numberRemainingP.textContent = guessesRemaining;
 
-    for (var i = 0; i < chosenWord.length; i++) {
+    // see if the letter is in the word
+    if (chosenWord.includes(userGuess)) {
+      // make it show in the word
+      for (var i = 0; i < chosenWord.length; i++) {
         if (userGuess === chosenWord[i]) {
-            blankSpace = blankSpace.substring(0, i) +  userGuess + blankSpace.substring(i + 1);
-            log('Blank Space', blankSpace);
-            currentWordP.textContent = blankSpace;
-            wordCountDown--;
-            log('Word Countdown', wordCountDown);
-        }
+          blankSpace =
+            blankSpace.substring(0, i) +
+            userGuess +
+            blankSpace.substring(i + 1);
 
-        if (wordCountDown === 0){
-            wins++;
-            log('Wins', wins);
-            winsP.textContent = wins;
+          // decrement word count (remaining unguessed letters)
         }
+      }
+    } else {
+      guessesRemaining--;
     }
-    
-}
+
+    var completed = isWordComplete(blankSpace);
+    if (completed) {
+      wins++;
+      log("Wins", wins);
+      updateTextContent(winsP, wins);
+      var newWord = selectRandomWord();
+      newGame(newWord);
+    } else if (guessesRemaining === 0) {
+      var newWord = selectRandomWord();
+      newGame(newWord);
+    }
+  }
+  currentWordP.textContent = blankSpace;
+  lettersGuessedP.textContent = lettersGuessed;
+  numberRemainingP.textContent = guessesRemaining;
+};
 //Check user's guess against current word
 
-    //Guess is correct
-        //reveal guessed letter in current word
+//Guess is correct
+//reveal guessed letter in current word
 
-    //Guess is incorrect
-        //add guessed letter to letters guessed and decrease guesses remainging
+//Guess is incorrect
+//add guessed letter to letters guessed and decrease guesses remainging
 
-        //if guess is repeat of anohter previous incorrect guess letters guessed and guesses remaining are not effected
+//if guess is repeat of anohter previous incorrect guess letters guessed and guesses remaining are not effected
 
- //If user wins, increase win count by 1 and post/change image on left side start playing song and show completed guessed word at top of screen
+//If user wins, increase win count by 1 and post/change image on left side start playing song and show completed guessed word at top of screen
 
- //If wins or loses, reset game after last screen 
+//If wins or loses, reset game after last screen
