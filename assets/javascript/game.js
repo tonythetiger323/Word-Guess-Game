@@ -73,21 +73,21 @@ function newGame(word) {
 
   // Have computer select a word to be guessed and display empty lines
 
-  log("Chosen Word", chosenWord);
+
 
   wordCountDown = chosenWord.length;
-  log("Word Count Down", wordCountDown);
+
 
   // Compute the new ___ ___ and display in browser
   blankSpace = displayChosenWord(chosenWord);
   updateTextContent(currentWordP, blankSpace);
 
-  log("Intial Blank Space", blankSpace);
+
 }
 
 // Code to handle processing user's guess
 newGame(selectRandomWord());
-document.onkeyup = function(event) {
+document.onkeyup = function (event) {
   // get the letter from the event
   var userGuess = event.key.toUpperCase();
 
@@ -124,7 +124,7 @@ document.onkeyup = function(event) {
     var completed = isWordComplete(blankSpace);
     if (completed) {
       wins++;
-      log("Wins", wins);
+
       updateTextContent(winsP, wins);
       var newWord = selectRandomWord();
       newGame(newWord);
